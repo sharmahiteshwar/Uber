@@ -330,3 +330,140 @@ curl -X GET http://localhost:3000/users/logout \
 ### Notes
 - After successful logout, the token cannot be used for subsequent requests
 - Users need to log in again to obtain a new valid token
+
+---
+
+# Captain Registration API Documentation
+
+## Overview
+This API provides an endpoint for captain registration including vehicle details.
+
+---
+
+## Endpoint: POST /captains/register
+
+### Description
+This endpoint allows new captains to register an account in the system. It validates the provided captain data including vehicle information, creates a new captain record with hashed password, and returns an authentication token along with the created captain details.
+
+### URL
+```
+POST /captains/register
+```
+
+### Request Headers
+```
+Content-Type: application/json
+```
+
+### Request Body
+The request body must be a JSON object with the following structure:
+
+```json
+{
+  "fullname": {
+    "firstname": "string",  // Required: minimum 3 characters
+    "lastname": "string"    // Optional
+  },
+  "email": "string",        // Required: valid email format
+  "password": "string",     // Required: minimum 6 characters
+  "vehicle": {
+    "color": "string",      // Required: minimum 3 characters
+    "plate": "string",      // Required: minimum 5 characters
+    "capacity": "integer",  // Required: minimum 1
+    "vehicleType": "string" // Required: one of "car", "motorcycle", "auto"
+  }
+}
+```
+
+### Required Data Fields
+| Field | Type | Required | Description | Validation Rules |
+|-------|------|----------|-------------|------------------|
+| fullname.firstname | string | Yes | Captain's first name | Minimum 3 characters |
+| fullname.lastname | string | No | Captain's last name | Optional |
+| email | string | Yes | Captain's email address | Must be valid email format |
+| password | string | Yes | Captain's password | Minimum 6 characters |
+| vehicle.color | string | Yes | Vehicle color | Minimum 3 characters |
+| vehicle.plate | string | Yes | Vehicle plate number | Minimum 5 characters |
+| vehicle.capacity | integer | Yes | Vehicle capacity | Minimum 1 |
+| vehicle.vehicleType | string | Yes | Vehicle type | One of "car", "motorcycle", "auto" |
+
+### Example Request
+```bash
+curl -X POST http://localhost:3000/captains/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullname": {
+      "firstname": "Alice",
+      "lastname": "Smith"
+    },
+    "email": "alice.smith@example.com",
+    "password": "securepassword123",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }'
+```
+
+### Success Response
+**Status Code:** `201 Created`
+
+**Response Body:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "captain": {
+    "_id": "507f1f77bcf86cd799439011",
+    "fullname": {
+      "firstname": "Alice",
+      "lastname": "Smith"
+    },
+    "email": "alice.smith@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "__v": 0
+  }
+}
+```
+
+### Error Responses
+
+#### 400 Bad Request
+**Status Code:** `400 Bad Request`
+
+**When:** Validation errors occur due to invalid input data or if the captain already exists.
+
+**Response Body:**
+```json
+{
+  "errors": [
+    {
+      "type": "field",
+      "msg": "Please enter a valid email",
+      "path": "email",
+      "location": "body"
+    }
+  ]
+}
+```
+or
+```json
+{
+  "message": "Captain already exists"
+}
+```
+
+### Security Features
+- Passwords are hashed before storage
+- JWT tokens are used for authentication
+- Generic error messages prevent user enumeration attacks
+
+### Notes
+- The JWT token should be included in the Authorization header for subsequent authenticated requests
+- Tokens typically expire after a certain period and need to be refreshed
