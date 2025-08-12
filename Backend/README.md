@@ -209,3 +209,124 @@ curl -X POST http://localhost:3000/users/login \
 ### Notes
 - The JWT token should be included in the Authorization header for subsequent authenticated requests
 - Tokens typically expire after a certain period and need to be refreshed
+
+---
+
+## Endpoint: GET /users/profile
+
+### Description
+This endpoint retrieves the authenticated user's profile information. It requires a valid JWT token to access the user's details.
+
+### URL
+```
+GET /users/profile
+```
+
+### Request Headers
+```
+Authorization: Bearer <token>
+```
+
+### Request Body
+No request body is required for this endpoint.
+
+### Example Request
+```bash
+curl -X GET http://localhost:3000/users/profile \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### Success Response
+**Status Code:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "john.doe@example.com",
+  "__v": 0
+}
+```
+
+### Error Responses
+
+#### 401 Unauthorized
+**Status Code:** `401 Unauthorized`
+
+**When:** No valid token is provided or the token has expired.
+
+**Response Body:**
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+### Security Features
+- Requires valid JWT token for authentication
+- Returns only the authenticated user's information
+- No sensitive data like passwords are included in the response
+
+---
+
+## Endpoint: GET /users/logout
+
+### Description
+This endpoint logs out the authenticated user by invalidating their current JWT token. The token is added to a blacklist to prevent future use.
+
+### URL
+```
+GET /users/logout
+```
+
+### Request Headers
+```
+Authorization: Bearer <token>
+```
+
+### Request Body
+No request body is required for this endpoint.
+
+### Example Request
+```bash
+curl -X GET http://localhost:3000/users/logout \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### Success Response
+**Status Code:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+### Error Responses
+
+#### 401 Unauthorized
+**Status Code:** `401 Unauthorized`
+
+**When:** No valid token is provided or the token has expired.
+
+**Response Body:**
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+### Security Features
+- Requires valid JWT token for authentication
+- Invalidates the token by adding it to a blacklist
+- Clears the authentication cookie
+- Prevents token reuse after logout
+
+### Notes
+- After successful logout, the token cannot be used for subsequent requests
+- Users need to log in again to obtain a new valid token
